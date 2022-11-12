@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Pass input directly to output.
+
+"""
+Modified from
 
 https://app.assembla.com/spaces/portaudio/git/source/master/test/patest_wire.c
 
@@ -42,9 +44,9 @@ parser.add_argument(
     help='number of channels')
 parser.add_argument('--dtype', help='audio data type')
 parser.add_argument('--samplerate', type=float, help='sampling rate')
-parser.add_argument('--blocksize', type=int, help='block size')
-parser.add_argument('--latency', type=float, help='latency in seconds')
-parser.add_argument('--scriptname', default="passthrough", type=str, help='filename of script')
+parser.add_argument('--blocksize', default=441, type=int, help='block size')
+parser.add_argument('--latency', default=0.05, type=float, help='latency in seconds')
+parser.add_argument('--load', type=str, help='load the pedalboard configuration from a file')
 args = parser.parse_args(remaining)
 
 
@@ -54,19 +56,26 @@ args = parser.parse_args(remaining)
 #    outdata[:] = indata
 
 
-module = __import__(args.scriptname)
-callback = getattr(module, "callback")
+#module = __import__(args.scriptname)
+#callback = getattr(module, "callback")
+
+import effect_chain
+chain=effect_chain.EffectChain()
+if(args.load):
+    chain.load(args.load)
+callback=chain
 
 try:
     with sd.Stream(device=(args.input_device, args.output_device),
                    samplerate=args.samplerate, blocksize=args.blocksize,
                    dtype=args.dtype, latency=args.latency,
                    channels=args.channels, callback=callback):
-        print('#' * 80)
-        print('press Return to quit')
-        print('#' * 80)
-        input()
-except KeyboardInterrupt:
-    parser.exit('')
+        #print('#' * 80)
+        #print('press Return to quit')
+        #print('#' * 80)
+        #input()
+        chain.cli()
+#except KeyboardInterrupt:
+#    parser.exit('')
 except Exception as e:
     parser.exit(type(e).__name__ + ': ' + str(e))
