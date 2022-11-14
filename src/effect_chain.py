@@ -2,6 +2,7 @@ class Effect:
     def __init__(self):
         name=""
         parameters={}
+        parameter_types={}
 
 class EffectChain:
     def __init__(self):
@@ -29,7 +30,7 @@ class EffectChain:
                 return
             for effect in self.effects:
                 if effect.name == line[1]:
-                    effect.parameters[line[2]] =  float(line[3])
+                    effect.parameters[line[2]] =  effect.parameter_types[line[2]](line[3])
         elif line[0] == "list":
             for i in range(len(self.effects)):
                 print(i, self.effects[i].name)
