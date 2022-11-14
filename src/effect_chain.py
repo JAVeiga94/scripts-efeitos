@@ -9,9 +9,19 @@ class EffectChain:
         self.effects=[]
     def apply_effects(self, indata, outdata):
 
-        outdata[:]=indata
-        for effect in self.effects:
-            effect.apply_effect(outdata,outdata)
+        effects=self.effects
+        if len(effects)==0:
+            outdata[:]=indata
+            return
+        for i in range(len(effects)):
+            effect = effects[i]
+            if i == 0:
+                effect.apply_effect(indata,outdata)
+            else:
+                effect.apply_effect(outdata,outdata)
+        #outdata[:]=indata
+        #for effect in self.effects:
+        #    effect.apply_effect(outdata,outdata)
             
     def __call__(self,indata, outdata, frames, time, status):
         if status:
