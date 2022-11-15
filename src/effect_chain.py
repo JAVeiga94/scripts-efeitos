@@ -67,7 +67,7 @@ class EffectChain:
                 if effect.name == line[1]:
                     tmp.remove(effect)
                     found=True
-            if !found:
+            if not found:
                 print("no effect named '"+line[1]+"'")
             self.effects = tmp
         elif line[0] == "insert":
@@ -108,7 +108,7 @@ class EffectChain:
                 if line[1] == effect.name:
                     effect.on ^= True
                     found=True
-            if !found:
+            if not found:
                 print("no effect named '"+line[1]+"'")
         elif line[0] == 'save':
             if len(line) != 2:
