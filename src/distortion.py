@@ -1,7 +1,8 @@
-import numpy as np
+import numpy as np, effect_chain
 
-class AdaptiveClip:
+class AdaptiveClip(effect_chain.Effect):
     def __init__(self):
+        super().__init__()
         self.name="adaptive_clip"
         self.parameters=dict(clip=0.3)
         self.parameter_types=dict(clip=float)
@@ -11,8 +12,9 @@ class AdaptiveClip:
         mx=rms*clip
         outdata[:] = indata*(abs(indata)<mx)+mx*np.sign(indata)*(abs(indata)>=mx)
 
-class AdaptiveCubic:
+class AdaptiveCubic(effect_chain.Effect):
     def __init__(self):
+        super().__init__()
         self.name="adaptive_cubic"
         self.parameters=dict(a=0.5)
         self.parameter_types=dict(a=float)

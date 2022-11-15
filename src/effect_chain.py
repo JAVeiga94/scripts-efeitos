@@ -1,8 +1,9 @@
 class Effect:
     def __init__(self):
-        name=""
-        parameters={}
-        parameter_types={}
+        self.name=""
+        self.parameters={}
+        self.parameter_types={}
+        self.on=True
 
 class EffectChain:
     def __init__(self):
@@ -10,13 +11,23 @@ class EffectChain:
     def apply_effects(self, indata, outdata):
 
         effects=self.effects
-        if len(effects)==0:
+        allOff=True
+        for effect in effects:
+            if effect.on==True:
+                allOff=False
+                break
+            
+        if allOff:
             outdata[:]=indata
             return
+        first=True
         for i in range(len(effects)):
             effect = effects[i]
-            if i == 0:
+            if effect.on == False:
+                continue
+            if first:
                 effect.apply_effect(indata,outdata)
+                first=False
             else:
                 effect.apply_effect(outdata,outdata)
         #outdata[:]=indata
@@ -43,7 +54,7 @@ class EffectChain:
                     effect.parameters[line[2]] =  effect.parameter_types[line[2]](line[3])
         elif line[0] == "list":
             for i in range(len(self.effects)):
-                print(i, self.effects[i].name)
+                print(i, self.effects[i].name, "on" if self.effects[i].name.on else "off")
                 for key in self.effects[i].parameters.keys():
                     print("  ",key, self.effects[i].parameters[key])
         elif line[0] == "remove":
@@ -51,9 +62,13 @@ class EffectChain:
                 print("syntax:  remove effect#")
                 return
             tmp=self.effects.copy()
+            found = False
             for effect in self.effects:
                 if effect.name == line[1]:
                     tmp.remove(effect)
+                    found=True
+            if !found:
+                print("no effect named '"+line[1]+"'")
             self.effects = tmp
         elif line[0] == "insert":
             if len(line) != 3:
@@ -84,6 +99,17 @@ class EffectChain:
                 print("syntax:  load filename")
                 return
             self.load(line[1])
+        elif line[0] == 'toggle':
+            if len(line) != 2:
+                print("syntax:  toggle effectname")
+                return
+            found = False
+            for effect in self.effects:
+                if line[1] == effect.name:
+                    effect.on ^= True
+                    found=True
+            if !found:
+                print("no effect named '"+line[1]+"'")
         elif line[0] == 'save':
             if len(line) != 2:
                 print("syntax: save filename")
