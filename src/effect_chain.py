@@ -1,4 +1,4 @@
-import readline
+import readline, os
 class Effect:
     def __init__(self):
         self.name=""
@@ -44,6 +44,9 @@ class EffectChain:
         if(len(line)==0):
             return
         if line[0] == '#':
+            return
+        if line[0] == '!':
+            os.system(line[1:])
             return
         line = line.split()
         if line[0] == "edit":
@@ -120,6 +123,36 @@ class EffectChain:
                     found=True
             if not found:
                 print("no effect named '"+line[1]+"'")
+        elif line[0] == 'off':
+            if len(line) != 2:
+                print("syntax:  off effectname")
+                return
+            if line[1]=='all':
+                for effect in self.effects:
+                    effect.on = False
+                return
+            found = False
+            for effect in self.effects:
+                if line[1] == effect.name:
+                    effect.on = False
+                    found=True
+            if not found:
+                print("no effect named '"+line[1]+"'")
+        elif line[0] ==	'on':
+            if len(line) != 2:
+                print("syntax:  on effectname")
+                return
+            if line[1] == 'all':
+                for effect in self.effects:
+                    effect.on = True
+                return
+            found = False
+            for effect in self.effects:
+                if line[1] == effect.name:
+                    effect.on =	True
+                    found=True
+            if not found:
+                print("no effect named '"+line[1]+"'")
         elif line[0] == 'save':
             if len(line) != 2:
                 print("syntax: save filename")
@@ -127,12 +160,14 @@ class EffectChain:
             with open(line[1],"w") as f:
                 for effect in self.effects:
                     f.write("append "+ str(type(effect)).replace("<class '", "").replace("'>","")+"\n")
+                    if not effect.on:
+                        f.write(f"off {effect.name}\n")
                     for key in effect.parameters.keys():
                         f.write("edit " + effect.name + " " + key + " " + str(effect.parameters[key])+"\n")
         elif line[0] == "exit":
             exit()
         elif line[0] == "help":
-            print("list of commands: \nappend \ninsert \nremove \nlist \nedit \ntoggle \nload \nsave \nhelp \nexit")
+            print("list of commands: \nappend \ninsert \nremove \nlist \nedit \non \noff \ntoggle \nload \nsave \nhelp \nexit")
         else :
             print(f"command not found: '{line[0]}'")
             

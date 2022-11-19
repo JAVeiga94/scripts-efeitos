@@ -1,7 +1,7 @@
 import numpy as np, effect_chain
 
 #base class for all delay/reverb type effects
-class DelayBase(effect_chain.Effect):
+class BasicDelay(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="delay"
@@ -55,3 +55,4 @@ class Flange(effect_chain.Effect):
 
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))        
+

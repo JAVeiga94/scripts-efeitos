@@ -22,7 +22,7 @@ class AdaptiveCubic(effect_chain.Effect):
         a = self.parameters['a']
         rms=np.std(indata)
 
-        a*=1/rms**2
+        a*=1/max(rms,.00001)**2
 
 
         #x-a x^3
