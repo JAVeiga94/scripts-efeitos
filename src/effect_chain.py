@@ -1,4 +1,6 @@
 import readline, os
+
+
 class Effect:
     def __init__(self):
         self.name="effect"
@@ -171,9 +173,55 @@ class EffectChain:
             print("list of commands: \nappend \ninsert \nremove \nlist \nedit \non \noff \ntoggle \nload \nsave \nhelp \nexit")
         else :
             print(f"command not found: '{line[0]}'")
-            
+
+    #autocomplete_list=["append", "insert", "on", "toggle", "edit","off", "all", "help", "exit", "remove", "list", "load", "save"]
+
+    # for autocompleting in the CLI
+
+    def traverse(self,tokens,tree):
+        if tree is None:
+            return []
+        elif len(tokens) == 0:
+            return []
+        if len(tokens) == 1:
+            return [x+' ' for x in tree.keys() if x.startswith(tokens[0])]
+        else:
+            if tokens[0] in tree.keys():
+                return self.traverse(tokens[1:],tree[tokens[0]])
+            else:
+                return []
+        return []
+    
+    def complete(self, text,state):
+        #create a tree of possible autocomplete
+        effect_catalog=None
+        effects_tree = {effect.name:None for effect in self.effects}
+        tree = {"load": None,
+                "save": None,
+                "help": None,
+                "exit": None,
+                "list": None,
+                "append": effect_catalog,
+                "insert": effect_catalog,
+                "toggle": effects_tree,
+                "on" : effects_tree,
+                "off" : effects_tree,
+                "remove" : effects_tree,
+                "edit" : {effect.name:{par: None for par in effect.parameters.keys()} for effect in self.effects}
+                } 
+        #try:
+        tokens = readline.get_line_buffer().split()
+        if not tokens or readline.get_line_buffer()[-1] == ' ':
+            tokens.append("")
+        results = self.traverse(tokens,tree) + [None]
+        return results[state]
+        #except Exception as e:
+        #    print(e)
         
     def cli(self):
+        import readline
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(self.complete)
         while True:
             line = input()
             try:
