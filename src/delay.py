@@ -6,12 +6,11 @@ class BasicDelay(effect_chain.Effect):
         super().__init__()
         self.name="delay"
         self.hist_buffer=None
-        channels=1; samplerate=48000;buffer_duration=1
+        channels=1; samplerate=48000;buffer_duration=2
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
         self.parameters=dict(dt=0.10, amp=0.3)
-        self.parameter_types=dict(dt=float, amp=float)
     def apply_effect(self, indata, outdata):
         frames=len(indata)
         #move data back
@@ -33,7 +32,6 @@ class Flange(effect_chain.Effect):
         self.samplerate=samplerate
         self.channels=channels
         self.parameters=dict(period=0.1, delay=0.010, depth=0.005, mix=0.5)
-        self.parameter_types={a : type(self.parameters[a]) for a in self.parameters.keys()}
         self.t0 = 0
     def apply_effect(self, indata, outdata):
         frames=len(indata)
@@ -56,3 +54,46 @@ class Flange(effect_chain.Effect):
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))        
 
+class EvenHarmonicSuppressor(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="ehs"
+        self.hist_buffer=None
+        channels=1; samplerate=48000; buffer_duration=0.1
+        self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
+        self.samplerate=samplerate
+        self.channels=channels
+        self.parameters=dict(mix=0.5,mix2=0.3, low=100, high=1100)
+        self.parameter_types={a : type(self.parameters[a]) for a in self.parameters.keys()}
+        self.t0 = 0
+    def apply_effect(self, indata, outdata):
+        frames=len(indata)
+        #move data back                                                                                                           
+        self.hist_buffer[:-frames]=self.hist_buffer[frames:]
+        self.hist_buffer[-frames:]=indata
+
+        samplerate=self.samplerate        
+
+        mix = self.parameters['mix']
+        low = self.parameters['low']
+        high= self.parameters['high']
+        
+        F=440
+
+        #determine the frequency to use:
+        #delta_f = (high - low) / (args.columns - 1)
+        #fftsize = math.ceil(samplerate / delta_f)
+        #low_bin = math.floor(low / delta_f)
+
+    
+        #magnitude = np.abs(np.fft.rfft(indata[:, 0], n=fftsize))
+        
+
+        
+        for i in range(len(outdata)):
+            dt=1/(2*F)
+            outdata[i,0] = indata[i,0]*(1-mix)-mix*self.hist_buffer[-frames+i-int(dt*samplerate),0]
+        
+
+    def format(self, channels=1, samplerate=48000,buffer_duration=1):
+        self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))

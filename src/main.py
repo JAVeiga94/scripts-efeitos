@@ -43,8 +43,8 @@ parser.add_argument(
     '-c', '--channels', type=int, default=1,
     help='number of channels')
 parser.add_argument('--dtype', help='audio data type')
-parser.add_argument('--samplerate', type=float, help='sampling rate')
-parser.add_argument('--blocksize', default=441, type=int, help='block size')
+parser.add_argument('--samplerate', default=48000., type=float, help='sampling rate')
+parser.add_argument('--blocksize', default=480, type=int, help='block size')
 parser.add_argument('--latency', default=0.05, type=float, help='latency in seconds')
 parser.add_argument('--load', type=str, help='load the pedalboard configuration from a file')
 args = parser.parse_args(remaining)

@@ -1,9 +1,8 @@
 import readline, os
 class Effect:
     def __init__(self):
-        self.name=""
+        self.name="effect"
         self.parameters={}
-        self.parameter_types={}
         self.on=True
 
 class EffectChain:
@@ -53,18 +52,20 @@ class EffectChain:
             if len(line) != 4:
                 print("syntax:  edit effect param value")
                 return
+            found = False
             for effect in self.effects:
-                found=False
                 if effect.name == line[1]:
                     if not line[2] in effect.parameters.keys():
                         print(f"effect '{line[1]}' does not have a parameter '{line[2]}'")
                         return
-                    effect.parameters[line[2]] =  effect.parameter_types[line[2]](line[3])
+                    # parse it to the class that the previous value of the parameter was.
+                    # ie, autodetect what type should be used.  
+                    effect.parameters[line[2]] =  type(effect.parameters[line[2]])(line[3])
                     found=True
                     return
-                if not found:
-                    print("no effect named '" + line[1] + "' found in chain")
-                    return
+            if not found:
+                print("no effect named '" + line[1] + "' found in chain")
+                return
         elif line[0] == "list":
             for i in range(len(self.effects)):
                 print(i, self.effects[i].name, "on" if self.effects[i].on else "off")
