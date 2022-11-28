@@ -1,5 +1,5 @@
 import readline, os
-
+import tuner, getch
 
 class Effect:
     def __init__(self):
@@ -10,10 +10,20 @@ class Effect:
 class EffectChain:
     def __init__(self):
         self.effects=[]
+        self.tuner_active=False
+        self.tuner=tuner.Tuner()
+        self.mute=False
+        self.input_gain=1
+        self.output_gain=1
     def apply_effects(self, indata, outdata):
 
         effects=self.effects
         allOff=True
+
+
+        if self.input_gain !=1:
+            indata[:]=self.input_gain*indata
+        
         for effect in effects:
             if effect.on==True:
                 allOff=False
@@ -32,6 +42,8 @@ class EffectChain:
                 first=False
             else:
                 effect.apply_effect(outdata,outdata)
+        if self.output_gain !=1:
+            outdata[:]=self.output_gain*outdata
         #outdata[:]=indata
         #for effect in self.effects:
         #    effect.apply_effect(outdata,outdata)
@@ -39,8 +51,11 @@ class EffectChain:
     def __call__(self,indata, outdata, frames, time, status):
         if status:
             print(status)
+        if self.tuner_active:
+            self.tuner.callback(indata,outdata,frames, time,status)
         self.apply_effects(indata,outdata)
-
+        if self.mute:
+            outdata *=0
     def parse_line(self, line):
         if(len(line)==0):
             return
@@ -73,6 +88,10 @@ class EffectChain:
                 print(i, self.effects[i].name, "on" if self.effects[i].on else "off")
                 for key in self.effects[i].parameters.keys():
                     print("  ",key, self.effects[i].parameters[key])
+        elif line[0] == "mute":
+            self.mute=True
+        elif line[0] == "unmute":
+            self.mute=False
         elif line[0] == "remove":
             if len(line) != 2:
                 print("syntax:  remove effect")
@@ -169,8 +188,22 @@ class EffectChain:
                         f.write("edit " + effect.name + " " + key + " " + str(effect.parameters[key])+"\n")
         elif line[0] == "exit":
             exit()
+        elif line[0] == "tuner":
+            self.tuner_active=True
+            print("Press the enter key to exit the tuner")
+            input()
+            self.tuner_active=False
+            print("\r                       ")
+        elif line[0] == "gain":
+            if len(line) !=3:
+                print("syntax:  gain [input or output] value")
+            if line[1] == "input":
+                self.input_gain=float(line[2])
+            if line[1] == "output":
+                self.output_gain=float(line[2])
         elif line[0] == "help":
-            print("list of commands: \nappend \ninsert \nremove \nlist \nedit \non \noff \ntoggle \nload \nsave \nhelp \nexit")
+            print("list of commands: \nappend \ninsert \nremove \nlist \nedit"+
+            "\non \noff \ntoggle \nload \nsave \nhelp \nexit \nmute \nunmute \ntuner")
         else :
             print(f"command not found: '{line[0]}'")
 
@@ -201,13 +234,17 @@ class EffectChain:
                 "help": None,
                 "exit": None,
                 "list": None,
+                "tuner":None,
+                "mute": None,
+                "unmute":None,
                 "append": effect_catalog,
                 "insert": effect_catalog,
                 "toggle": effects_tree,
                 "on" : effects_tree,
                 "off" : effects_tree,
                 "remove" : effects_tree,
-                "edit" : {effect.name:{par: None for par in effect.parameters.keys()} for effect in self.effects}
+                "edit" : {effect.name:{par: None for par in effect.parameters.keys()} for effect in self.effects},
+                "gain" : {"input" : None, "output" : None}
                 } 
         #try:
         tokens = readline.get_line_buffer().split()

@@ -32,7 +32,7 @@ class AdaptiveCubic(effect_chain.Effect):
 class SimpleCubic(effect_chain.Effect):
     def __init__(self):
         super().__init__()
-        self.name="adaptive_cubic"
+        self.name="cubic"
         self.parameters=dict(thresh=0.01)
     def apply_effect(self, indata, outdata):
         thresh = self.parameters['thresh']

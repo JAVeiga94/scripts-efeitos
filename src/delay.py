@@ -22,6 +22,32 @@ class BasicDelay(effect_chain.Effect):
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
 
+# similar to BasicDelay, but mixing the delayed signal into the history buffer
+# in order to get multiple echos
+class Echo(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="echo"
+        self.hist_buffer=None
+        channels=1; samplerate=48000;buffer_duration=2
+        self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
+        self.samplerate=samplerate
+        self.channels=channels
+        self.parameters=dict(dt=0.3, mix=0.2)
+    def apply_effect(self, indata, outdata):
+        frames=len(indata)
+        mix = self.parameters['mix']
+        dt = self.parameters['dt']
+        samplerate=self.samplerate
+        self.hist_buffer[:-frames]=self.hist_buffer[frames:]
+        n = int(dt*samplerate)
+        self.hist_buffer[-frames:]=(1-mix)*indata+mix*self.hist_buffer[-frames-n:-n]
+        outdata[:] = self.hist_buffer[-frames:]
+
+    def format(self, channels=1, samplerate=48000,buffer_duration=1):
+        self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
+
+        
 class Flange(effect_chain.Effect):
     def __init__(self):
         super().__init__()
@@ -31,7 +57,7 @@ class Flange(effect_chain.Effect):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
-        self.parameters=dict(period=0.1, delay=0.010, depth=0.005, mix=0.5)
+        self.parameters=dict(period=0.5, delay=0.010, depth=0.005, mix=0.5)
         self.t0 = 0
     def apply_effect(self, indata, outdata):
         frames=len(indata)
