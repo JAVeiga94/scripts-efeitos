@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import global_settings
 
 """
 Modified from
@@ -51,6 +52,8 @@ parser.add_argument('--mute',action='store_true', help='mute the pedalboard at t
 args = parser.parse_args(remaining)
 
 
+global_settings.samplerate=args.samplerate
+global_settings.channels =args.channels
 #def callback(indata, outdata, frames, time, status):
 #    if status:
 #        print(status)

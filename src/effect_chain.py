@@ -193,7 +193,7 @@ class EffectChain:
             print("Press the enter key to exit the tuner")
             input()
             self.tuner_active=False
-            print("\r                       ")
+            print("\r                                             ")
         elif line[0] == "gain":
             if len(line) !=3:
                 print("syntax:  gain [input or output] value")

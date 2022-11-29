@@ -1,4 +1,4 @@
-import numpy as np, effect_chain
+import numpy as np, effect_chain, global_settings
 
 #base class for all delay/reverb type effects
 class BasicDelay(effect_chain.Effect):
@@ -6,7 +6,9 @@ class BasicDelay(effect_chain.Effect):
         super().__init__()
         self.name="delay"
         self.hist_buffer=None
-        channels=1; samplerate=48000;buffer_duration=2
+        channels=global_settings.channels
+        samplerate=global_settings.samplerate
+        buffer_duration=2
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
@@ -29,7 +31,9 @@ class Echo(effect_chain.Effect):
         super().__init__()
         self.name="echo"
         self.hist_buffer=None
-        channels=1; samplerate=48000;buffer_duration=2
+        channels=global_settings.channels
+        samplerate=global_settings.samplerate
+        buffer_duration=2
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
@@ -53,7 +57,9 @@ class Flange(effect_chain.Effect):
         super().__init__()
         self.name="flange"
         self.hist_buffer=None
-        channels=1; samplerate=48000; buffer_duration=0.1
+        channels=global_settings.channels
+        samplerate=global_settings.samplerate
+        buffer_duration=0.1
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
@@ -85,7 +91,9 @@ class EvenHarmonicSuppressor(effect_chain.Effect):
         super().__init__()
         self.name="ehs"
         self.hist_buffer=None
-        channels=1; samplerate=48000; buffer_duration=0.1
+        channels=global_settings.channels
+        samplerate=global_settings.samplerate
+        buffer_duration=0.1
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
