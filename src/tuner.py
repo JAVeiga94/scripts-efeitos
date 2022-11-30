@@ -20,7 +20,7 @@ class Tuner():
                                octaves_above,
                                int(1+self.per_semitone*12*(octaves_above-octaves_below))))*440
         self.omega2=(2*np.pi*self.f)**2
-        self.m=(-0.2+2*np.pi*1j)*self.f-0.2*self.f*(self.f>440)
+        self.m=(-0.2+2*np.pi*1j)*self.f-0.7*self.f*(self.f>440)
         self.a=0j*np.zeros(len(self.f))
         self.mr=np.array([mi.real for mi in self.m])
         #print(self.f)
