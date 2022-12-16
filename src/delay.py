@@ -51,6 +51,39 @@ class Echo(effect_chain.Effect):
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
 
+#similar to echo but with multiple different delays happening at the same time
+phi=(np.sqrt(5)+1)/2
+class Reverb(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="reverb"
+        self.hist_buffer=None
+        channels=global_settings.channels
+        samplerate=global_settings.samplerate
+        buffer_duration=2
+        self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
+        self.samplerate=samplerate
+        self.channels=channels
+        self.parameters=dict(dt=0.3, mix=0.1)
+    def apply_effect(self, indata, outdata):
+        frames=len(indata)
+        mix = self.parameters['mix']
+        dt = self.parameters['dt']
+        samplerate=self.samplerate
+        self.hist_buffer[:-frames]=self.hist_buffer[frames:]
+        n = int(dt*samplerate)
+        n2 = int(n*phi)
+        n3 = int(n*phi*phi)
+        self.hist_buffer[-frames:]=(1-mix)*indata+\
+                           (mix*self.hist_buffer[-frames-n:-n]+\
+                           mix*self.hist_buffer[-frames-n2:-n2]/phi+\
+                            mix*self.hist_buffer[-frames-n3:-n3]/phi/phi)/3
+        outdata[:] = self.hist_buffer[-frames:]
+
+    def format(self, channels=1, samplerate=48000,buffer_duration=1):
+        self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
+
+
         
 class Flange(effect_chain.Effect):
     def __init__(self):
