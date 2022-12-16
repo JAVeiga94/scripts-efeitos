@@ -33,7 +33,7 @@ class SimpleCubic(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="cubic"
-        self.parameters=dict(thresh=0.01)
+        self.parameters=dict(thresh=0.1, ingain=3)
     def apply_effect(self, indata, outdata):
         thresh = self.parameters['thresh']
         #rms=np.std(indata)
@@ -47,7 +47,7 @@ class SimpleCubic(effect_chain.Effect):
         a=1/(3*thresh**2)
         x=thresh  #np.sqrt(1/(3*a))
         c = x-a*x**3
-
+        indata[:]=self.parameters['ingain']*indata
 
         
         outdata[:] = (indata-a*indata**3)*(indata**2<1/(3*a))+(indata**2>=1/(3*a))*c*np.sign(indata)
