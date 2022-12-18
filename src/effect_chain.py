@@ -1,5 +1,10 @@
 import readline, os
-import tuner, getch
+import tuner
+import readchar
+#import getch
+
+if os.name=='nt': os.system('color')
+from termcolor import colored
 
 class Effect:
     def __init__(self):
@@ -201,9 +206,27 @@ class EffectChain:
                 self.input_gain=float(line[2])
             if line[1] == "output":
                 self.output_gain=float(line[2])
+        elif line[0] == "quicktoggle":
+            print ("press the key associated with each effect to turn on/off the effect")
+            print ("press x to exit the quick toggle mode")
+            effects = self.effects
+            for i in range(len(effects)):
+                print(colored("%d %s" %(i, effects[i].name),"green" if effects[i].on else "red"))
+            while True:
+                ch = readchar.readchar()
+                #ch= getch.getch()
+                if ch in "0123456789"[0:len(effects)]:
+                    effects[int(ch)].on^=True
+                    for i in range(len(effects)):
+                        print("\033[1A", end='')
+                    for i in range(len(effects)):
+                        print(colored("%d %s" %(i, effects[i].name),"green" if effects[i].on else "red"))
+                elif ch=="x":
+                    print("exiting quick toggle mode")
+                    break
         elif line[0] == "help":
             print("list of commands: \nappend \ninsert \nremove \nlist \nedit"+
-            "\non \noff \ntoggle \nload \nsave \nhelp \nexit \nmute \nunmute \ntuner")
+            "\non \noff \ntoggle \nload \nsave \nhelp \nexit \nmute \nunmute \ntuner\nquicktoggle")
         else :
             print(f"command not found: '{line[0]}'")
 
@@ -244,7 +267,9 @@ class EffectChain:
                 "off" : effects_tree,
                 "remove" : effects_tree,
                 "edit" : {effect.name:{par: None for par in effect.parameters.keys()} for effect in self.effects},
-                "gain" : {"input" : None, "output" : None}
+                "gain" : {"input" : None, "output" : None},
+                "quicktoggle": None
+                
                 } 
         #try:
         tokens = readline.get_line_buffer().split()
