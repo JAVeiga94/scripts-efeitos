@@ -1,0 +1,31 @@
+append pitch.Octave
+off octave
+edit octave period 0.05
+edit octave mix 0.5
+edit octave r 1.0
+append distortion.SimpleCubic
+off cubic
+edit cubic thresh 0.1
+edit cubic ingain 3
+append distortion.TanH
+edit tanh thresh 0.1
+edit tanh ingain 3
+append distortion.LowPass
+edit low_pass omega 10000
+append tremelo.Tremelo
+off tremelo
+edit tremelo depth 0.4
+edit tremelo period 0.1
+append delay.Flange
+off flange
+edit flange period 0.5
+edit flange delay 0.01
+edit flange depth 0.002
+edit flange mix 0.5
+append delay.Echo
+off echo
+edit echo dt 0.3
+edit echo mix 0.2
+append delay.Reverb
+edit reverb dt 0.1
+edit reverb mix 0.1

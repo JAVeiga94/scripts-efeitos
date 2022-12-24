@@ -1,4 +1,4 @@
-import numpy as np, effect_chain
+import numpy as np, effect_chain, global_settings
 
 class AdaptiveClip(effect_chain.Effect):
     def __init__(self):
@@ -51,3 +51,35 @@ class SimpleCubic(effect_chain.Effect):
 
         
         outdata[:] = (indata-a*indata**3)*(indata**2<1/(3*a))+(indata**2>=1/(3*a))*c*np.sign(indata)
+
+
+#use the tanh function to create soft clipping
+class TanH(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="tanh"
+        self.parameters=dict(thresh=0.1, ingain=3)
+    def apply_effect(self, indata, outdata):
+        thresh = self.parameters['thresh']
+        gain = self.parameters['ingain']
+        
+
+        outdata[:] = thresh*np.tanh((indata*gain)/thresh)
+
+class LowPass(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="low_pass"
+        self.parameters=dict(omega=10000)
+        self.y=0
+        self.samplerate=global_settings.samplerate
+
+    def apply_effect(self, indata, outdata):
+        frames=len(indata)
+        omega = self.parameters['omega']
+        dt=1/self.samplerate
+        y=self.y
+        for i in range(frames):
+            y+=omega*dt*(indata[i,0]-y)
+            outdata[i,0] = y
+        self.y=y

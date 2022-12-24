@@ -64,7 +64,7 @@ class Reverb(effect_chain.Effect):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
-        self.parameters=dict(dt=0.3, mix=0.1)
+        self.parameters=dict(dt=0.3, mix=0.2)
     def apply_effect(self, indata, outdata):
         frames=len(indata)
         mix = self.parameters['mix']
