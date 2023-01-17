@@ -62,15 +62,36 @@ class TanH(effect_chain.Effect):
     def apply_effect(self, indata, outdata):
         thresh = self.parameters['thresh']
         gain = self.parameters['ingain']
-        
-
         outdata[:] = thresh*np.tanh((indata*gain)/thresh)
 
+
+class DynaDrive(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="dyna"
+        self.parameters=dict(thresh=1., tau=0.005, asym=0.)
+        self.y=0
+    def apply_effect(self, indata, outdata):
+        thresh = self.parameters['thresh']
+        tau = self.parameters['tau']
+        samplerate=global_settings.samplerate
+        asym=self.parameters['asym']
+        y=self.y
+        for i in range(len(indata)):
+            y+=(indata[i,0]**2-y)/(samplerate*tau)
+            if y!=0:
+                #different threshold on each side
+                side_thresh=thresh*(1+asym*np.sign(indata[i,0]))
+                outdata[i,0] = np.sqrt(y)*side_thresh*np.tanh((indata[i,0])/side_thresh/np.sqrt(y))
+            else :
+                outdata[i,0] = 0
+        self.y=y
+        
 class LowPass(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="low_pass"
-        self.parameters=dict(omega=10000)
+        self.parameters=dict(omega=20000)
         self.y=0
         self.samplerate=global_settings.samplerate
 
@@ -83,3 +104,26 @@ class LowPass(effect_chain.Effect):
             y+=omega*dt*(indata[i,0]-y)
             outdata[i,0] = y
         self.y=y
+class HighPass(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="high_pass"
+        self.parameters=dict(omega=50)
+        self.y=0
+        self.samplerate=global_settings.samplerate
+        self.xprev=None
+
+    def apply_effect(self, indata, outdata):
+        frames=len(indata)
+        omega = self.parameters['omega']
+        dt=1/self.samplerate
+        y=self.y
+        xprev=self.xprev
+        if xprev==None:
+            xprev=indata[0,0]
+        for i in range(frames):
+            y+=indata[i,0]-xprev-omega*dt*y
+            outdata[i,0] = y
+            xprev=indata[i,0]
+        self.y=y
+        self.xprev=xprev

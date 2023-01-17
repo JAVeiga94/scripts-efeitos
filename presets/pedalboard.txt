@@ -8,14 +8,19 @@ off cubic
 edit cubic thresh 0.1
 edit cubic ingain 3
 append distortion.TanH
+off tanh
 edit tanh thresh 0.1
 edit tanh ingain 3
+append distortion.DynaDrive
+edit dyna thresh 2.0
+edit dyna tau 0.005
+edit dyna asym 0.3
 append distortion.LowPass
-edit low_pass omega 10000
+edit low_pass omega 30000
 append tremelo.Tremelo
 off tremelo
-edit tremelo depth 0.4
 edit tremelo period 0.1
+edit tremelo depth 0.4
 append delay.Flange
 off flange
 edit flange period 0.5
