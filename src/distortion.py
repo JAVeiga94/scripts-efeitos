@@ -69,10 +69,11 @@ class DynaDrive(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="dyna"
-        self.parameters=dict(thresh=1., tau=0.005, asym=0.)
+        self.parameters=dict(thresh_a=1., thresh_b=1., tau=0.005, asym=0.)
         self.y=0
     def apply_effect(self, indata, outdata):
-        thresh = self.parameters['thresh']
+        a = self.parameters['thresh_a']
+        b = self.parameters['thresh_b']
         tau = self.parameters['tau']
         samplerate=global_settings.samplerate
         asym=self.parameters['asym']
@@ -80,9 +81,8 @@ class DynaDrive(effect_chain.Effect):
         for i in range(len(indata)):
             y+=(indata[i,0]**2-y)/(samplerate*tau)
             if y!=0:
-                #different threshold on each side
-                side_thresh=thresh*(1+asym*np.sign(indata[i,0]))
-                outdata[i,0] = np.sqrt(y)*side_thresh*np.tanh((indata[i,0])/side_thresh/np.sqrt(y))
+                thresh=min(a*np.sqrt(y), b)*(1+asym*np.sign(indata[i,0]))
+                outdata[i,0] = thresh*np.tanh(indata[i,0]/thresh)
             else :
                 outdata[i,0] = 0
         self.y=y
