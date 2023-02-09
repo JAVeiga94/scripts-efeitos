@@ -1,6 +1,7 @@
 import readline, os
 import tuner
 import readchar
+import time
 #import getch
 
 if os.name=='nt': os.system('color')
@@ -11,7 +12,16 @@ class Effect:
         self.name="effect"
         self.parameters={}
         self.on=True
-
+    # use getters and setters so that in case
+    # additional code needs to be run when
+    # setting a parameter, this can be done
+    #def set_parameter(self, name, val):
+    #    self.parameters[param]=val
+    #def get_parameter(self, name):
+    #    return self.parameters[name]
+    #def parameter_names(self):
+    #    return self.parameters.keys()
+    
 class EffectChain:
     def __init__(self):
         self.effects=[]
@@ -20,11 +30,18 @@ class EffectChain:
         self.mute=False
         self.input_gain=1
         self.output_gain=1
+
+        #for time profiling
+        self.profile_start=None
+        self.profile_map=None
     def apply_effects(self, indata, outdata):
 
         effects=self.effects
         allOff=True
 
+        if self.profile_start is not None:
+            if self.profile_map is None:
+                self.profile_map = {effect.name : 0 for effect in effects}
 
         if self.input_gain !=1:
             indata[:]=self.input_gain*indata
@@ -43,16 +60,32 @@ class EffectChain:
             if effect.on == False:
                 continue
             if first:
+                if self.profile_map is not None:
+                    self.profile_map[effect.name]-=time.time_ns()
                 effect.apply_effect(indata,outdata)
+                if self.profile_map is not None:
+                    self.profile_map[effect.name]+=time.time_ns()
                 first=False
             else:
+                if self.profile_map is not None:
+                    self.profile_map[effect.name]-=time.time_ns()
                 effect.apply_effect(outdata,outdata)
+                if self.profile_map is not None:
+                    self.profile_map[effect.name]+=time.time_ns()
         if self.output_gain !=1:
             outdata[:]=self.output_gain*outdata
         #outdata[:]=indata
         #for effect in self.effects:
         #    effect.apply_effect(outdata,outdata)
-            
+        if self.profile_start is not None:
+            time_ns = time.time_ns()-self.profile_start
+            if time_ns >1e9:
+                print("profile results")
+                for effect in effects:
+                    #if effect.on:
+                    print(f"{effect.name} {self.profile_map[effect.name]/time_ns:.3f}")
+                print(f"total {sum([self.profile_map[effect.name] for effect in effects])/time_ns:.4f}")
+                self.profile_map,self.profile_start=None,None
     def __call__(self,indata, outdata, frames, time, status):
         if status:
             print(status)
@@ -89,10 +122,22 @@ class EffectChain:
                 print("no effect named '" + line[1] + "' found in chain")
                 return
         elif line[0] == "list":
+            if len(line)==2:
+                found=False
+                for effect in self.effects:
+                    if effect.name == line[1]:
+                        found=True
+                        print(effect.name, "on" if effect.on else "off")
+                        for key in effect.parameters.keys():
+                            print("  ",key, effect.parameters[key])
+                if not found:
+                    print("no effect named '" + line[1] + "' found in chain")
+                return
             for i in range(len(self.effects)):
                 print(i, self.effects[i].name, "on" if self.effects[i].on else "off")
                 for key in self.effects[i].parameters.keys():
                     print("  ",key, self.effects[i].parameters[key])
+            
         elif line[0] == "mute":
             self.mute=True
         elif line[0] == "unmute":
@@ -226,7 +271,9 @@ class EffectChain:
                     break
         elif line[0] == "help":
             print("list of commands: \nappend \ninsert \nremove \nlist \nedit"+
-            "\non \noff \ntoggle \nload \nsave \nhelp \nexit \nmute \nunmute \ntuner\nquicktoggle")
+            "\non \noff \ntoggle \nload \nsave \nhelp \nexit \nmute \nunmute \ntuner\nquicktoggle\nprofile")
+        elif line[0] == "profile":
+            self.profile_start=time.time_ns()
         else :
             print(f"command not found: '{line[0]}'")
 
