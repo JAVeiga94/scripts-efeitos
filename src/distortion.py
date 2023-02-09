@@ -76,15 +76,16 @@ class DynaDrive(effect_chain.Effect):
         b = self.parameters['thresh_b']
         tau = self.parameters['tau']
         samplerate=global_settings.samplerate
+        samplerate_tau=samplerate*tau
         asym=self.parameters['asym']
         y=self.y
         for i in range(len(indata)):
-            y+=(indata[i,0]**2-y)/(samplerate*tau)
-            if y!=0:
-                thresh=min(a*np.sqrt(y), b)*(1+asym*np.sign(indata[i,0]))
-                outdata[i,0] = thresh*np.tanh(indata[i,0]/thresh)
-            else :
-                outdata[i,0] = 0
+            x=indata[i,0]
+            y+=(x**2-y)/samplerate_tau
+            thresh=min(a*y**0.5, b)*(1+asym*np.sign(x))
+            
+            outdata[i,0] = thresh*(np.tanh(x/thresh) if thresh else 0)
+            
         self.y=y
         
 class LowPass(effect_chain.Effect):
