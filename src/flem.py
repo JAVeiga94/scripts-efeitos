@@ -30,8 +30,9 @@ class Flem(effect_chain.Effect):
         mix = self.parameters['mix']
         delay=self.parameters['delay']
         for i in range(len(outdata)):
-            dt=np.sin(flange_omega*(self.t0+i/samplerate))*flange_depth+delay
-            outdata[i,0] = indata[i,0]*(1-mix)+mix*(1+trem_depth*np.sin(trem_omega*(self.t0+i/samplerate)))*self.hist_buffer[-frames+i-int(dt*samplerate),0]
+            t=self.t0+i/samplerate
+            dt=np.sin(flange_omega*t)*flange_depth+delay
+            outdata[i,0] = indata[i,0]*(1-mix)+mix*(1+trem_depth*np.sin(trem_omega*t))*self.hist_buffer[-frames+i-int(dt*samplerate),0]
         self.t0+=frames/samplerate
 
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
