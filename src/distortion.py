@@ -100,9 +100,10 @@ class LowPass(effect_chain.Effect):
         frames=len(indata)
         omega = self.parameters['omega']
         dt=1/self.samplerate
+        omega_dt=omega*dt
         y=self.y
         for i in range(frames):
-            y+=omega*dt*(indata[i,0]-y)
+            y+=omega_dt*(indata[i,0]-y)
             outdata[i,0] = y
         self.y=y
 class HighPass(effect_chain.Effect):
@@ -118,12 +119,13 @@ class HighPass(effect_chain.Effect):
         frames=len(indata)
         omega = self.parameters['omega']
         dt=1/self.samplerate
+        omega_dt=omega*dt
         y=self.y
         xprev=self.xprev
         if xprev==None:
             xprev=indata[0,0]
         for i in range(frames):
-            y+=indata[i,0]-xprev-omega*dt*y
+            y+=indata[i,0]-xprev-omega_dt*y
             outdata[i,0] = y
             xprev=indata[i,0]
         self.y=y
