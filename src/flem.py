@@ -1,5 +1,6 @@
 # Creates a flange effect with tremelo on the delayed signal
 import effect_chain, numpy as np, global_settings
+from math import sin
 class Flem(effect_chain.Effect):
     def __init__(self):
         super().__init__()
@@ -22,7 +23,7 @@ class Flem(effect_chain.Effect):
         
         samplerate=self.samplerate
         
-        
+        hb = self.hist_buffer
         flange_omega=2*np.pi/self.parameters['flange_period']
         flange_depth=self.parameters['flange_depth']
         trem_omega=2*np.pi/self.parameters['trem_period']
@@ -31,8 +32,8 @@ class Flem(effect_chain.Effect):
         delay=self.parameters['delay']
         for i in range(len(outdata)):
             t=self.t0+i/samplerate
-            dt=np.sin(flange_omega*t)*flange_depth+delay
-            outdata[i,0] = indata[i,0]*(1-mix)+mix*(1+trem_depth*np.sin(trem_omega*t))*self.hist_buffer[-frames+i-int(dt*samplerate),0]
+            dt=sin(flange_omega*t)*flange_depth+delay
+            outdata[i,0] = indata[i,0]*(1-mix)+mix*(1+trem_depth*sin(trem_omega*t))*hb[-frames+i-int(dt*samplerate),0]
         self.t0+=frames/samplerate
 
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
