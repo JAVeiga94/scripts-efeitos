@@ -23,7 +23,7 @@ class Drone(effect_chain.Effect):
         #t0=self.t0
         for i in range(len(outdata)):
             x=indata[i,0]
-            y+=(x*x-y)/(samplerate*(decay if y>x**2 else attack))
+            y+=(x*x-y)/(samplerate*(decay if y>x*x else attack))
             a=y**.5
             t=self.t0+i/samplerate
             saw=2*(t%period)/period-1
