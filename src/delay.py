@@ -1,5 +1,5 @@
 import numpy as np, effect_chain, global_settings
-
+from math import sin,cos
 #base class for all delay/reverb type effects
 class BasicDelay(effect_chain.Effect):
     def __init__(self):
@@ -111,8 +111,10 @@ class Flange(effect_chain.Effect):
         depth=self.parameters['depth']
         mix = self.parameters['mix']
         delay=self.parameters['delay']
+        t=self.t0
         for i in range(len(outdata)):
-            dt=np.sin(omega*(self.t0+i/samplerate))*depth+delay
+            t+=1/samplerate
+            dt=sin(omega*t)*depth+delay
             outdata[i,0] = indata[i,0]*(1-mix)+mix*self.hist_buffer[-frames+i-int(dt*samplerate),0] 
         self.t0+=frames/samplerate
 
