@@ -15,8 +15,8 @@ class Effect:
     # use getters and setters so that in case
     # additional code needs to be run when
     # setting a parameter, this can be done
-    #def set_parameter(self, name, val):
-    #    self.parameters[param]=val
+    def set_parameter(self, name, val):
+        self.parameters[name]=type(self.parameters[name])(val)
     #def get_parameter(self, name):
     #    return self.parameters[name]
     #def parameter_names(self):
@@ -79,7 +79,7 @@ class EffectChain:
         #    effect.apply_effect(outdata,outdata)
         if self.profile_start is not None:
             time_ns = time.time_ns()-self.profile_start
-            if time_ns >1e9:
+            if time_ns >5e9:
                 print("profile results")
                 for effect in effects:
                     #if effect.on:
@@ -115,7 +115,8 @@ class EffectChain:
                         return
                     # parse it to the class that the previous value of the parameter was.
                     # ie, autodetect what type should be used.  
-                    effect.parameters[line[2]] =  type(effect.parameters[line[2]])(line[3])
+                    #effect.parameters[line[2]] =  type(effect.parameters[line[2]])(line[3])
+                    effect.set_parameter(line[2], line[3])
                     found=True
                     return
             if not found:
@@ -307,6 +308,7 @@ class EffectChain:
                 "tuner":None,
                 "mute": None,
                 "unmute":None,
+                "profile":None,
                 "append": effect_catalog,
                 "insert": effect_catalog,
                 "toggle": effects_tree,

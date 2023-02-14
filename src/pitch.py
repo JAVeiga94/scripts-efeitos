@@ -1,5 +1,5 @@
 import numpy as np, effect_chain, global_settings
-
+from math import sin, cos
 #base class for all delay/reverb type effects
 class Octave(effect_chain.Effect):
     def __init__(self):
@@ -29,20 +29,23 @@ class Octave(effect_chain.Effect):
             if j>N:
                 j=0
             x=j/N
-            w1=mix*np.sin(x*np.pi)
-            w2=mix*abs(np.cos(x*np.pi))
+            w1=mix*sin(x*np.pi)
+            w2=mix*abs(cos(x*np.pi))
 
 
             #dn1 = -N+int(j*r)
             #dn2 = -N+int((j+N/2)*r)
             #dn2-=N*(dn2>0)
+
+
             if r>=0:
-                dn1 = int((j-N)*r)
-                dn2 = int((j-N/2)*r)
-                dn2-=int(N*r)*(dn2>0)
+                #dn1 = int((j-N)*r)
+                #dn2 = int((j-N/2)*r)
+                #dn2-=int(N*r)*(dn2>0)
+                dn1,dn2=int((j-N)*r), int((j-N/2)*r)
+                dn2-=int(N*r) if dn2>0 else 0
             else:
-                dn1 = int(j*r)
-                dn2 = int((j-N/2)*r)
+                dn1,dn2 = int(j*r),int((j-N/2)*r)
                 dn2+= int(N*r)*(dn2>0)
 
             
@@ -51,7 +54,7 @@ class Octave(effect_chain.Effect):
                        w2*self.hist_buffer[-frames+i+dn2,:]
         self.frame=j
 
-        self.frame=j
+        
 
 
 
