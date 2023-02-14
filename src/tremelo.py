@@ -1,4 +1,5 @@
 import effect_chain, numpy as np, global_settings
+from math import sin
 class Tremelo(effect_chain.Effect):
     def __init__(self):
         super().__init__()
@@ -18,6 +19,6 @@ class Tremelo(effect_chain.Effect):
         depth=self.parameters['depth']
 
         for i in range(len(outdata)):
-            s=np.sin(omega*(self.t0+i/samplerate))*depth
+            s=sin(omega*(self.t0+i/samplerate))*depth
             outdata[i,0] = indata[i,0]*(1+s*depth)
         self.t0+=frames/samplerate
