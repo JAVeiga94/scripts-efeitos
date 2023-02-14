@@ -14,11 +14,12 @@ class Tremelo(effect_chain.Effect):
     def apply_effect(self, indata, outdata):
         frames=len(indata)
 
-        samplerate=self.samplerate
+        dt=1/self.samplerate
         omega=2*np.pi/self.parameters['period']
         depth=self.parameters['depth']
-
+        t=self.t0
         for i in range(len(outdata)):
-            s=sin(omega*(self.t0+i/samplerate))*depth
+            t+=dt
+            s=sin(omega*t)*depth
             outdata[i,0] = indata[i,0]*(1+s*depth)
-        self.t0+=frames/samplerate
+        self.t0+=frames*dt
