@@ -1,17 +1,16 @@
-append pitch.Octave
-off octave
-edit octave period 0.05
-edit octave mix 0.5
-edit octave r 1.0
+append multioctave.OctaveUpDown
+edit octave mix_up 0.2
+edit octave mix_down 0.2
 append distortion.SimpleCubic
 off cubic
 edit cubic thresh 0.1
 edit cubic ingain 3
-append distortion.TanH
-off tanh
-edit tanh thresh 0.1
-edit tanh ingain 3
+append distortion.Asym
+edit asym thresh1 0.1
+edit asym thresh2 0.3
+edit asym ingain 3
 append distortion.DynaDrive
+off dyna
 edit dyna thresh_a 2.0
 edit dyna thresh_b 0.1
 edit dyna tau 0.005

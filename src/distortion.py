@@ -64,6 +64,42 @@ class TanH(effect_chain.Effect):
         gain = self.parameters['ingain']
         outdata[:] = thresh*np.tanh((indata*gain)/thresh)
 
+        
+#Similar to the TanH, but introduce asymmetry in the thresholds to mimic a tube amp
+class Asym(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="asym"
+        self.parameters=dict(thresh1=0.1, thresh2=0.3, ingain=3)
+    def apply_effect(self, indata, outdata):
+        thresh1 = self.parameters['thresh1']
+        thresh2 = self.parameters['thresh2']
+        thresh = np.sign(indata)*(thresh1/2-thresh2/2)+(thresh1+thresh2)/2
+        gain = self.parameters['ingain']
+        outdata[:] = thresh*np.tanh((indata*gain)/thresh)
+
+#binary fuzz mixed with clean signal
+class Fuzz(effect_chain.Effect):
+    def __init__(self):
+        super().__init__()
+        self.name="fuzz"
+        self.parameters=dict(volume=0.001, tau=0.05)
+        self.y=0
+    def apply_effect(self, indata, outdata):
+        volume = self.parameters['volume']
+        #outdata[:] = (2*(indata>0)-1)
+        y=self.y
+        tau = self.parameters['tau']
+        samplerate=global_settings.samplerate
+        samplerate_tau=samplerate*tau
+
+        for i in range(len(indata)):
+            x=indata[i,0]
+            
+            y+=(x**2-y)/samplerate_tau
+            outdata[i,0] = y**.5*(2*(x>0)-1)
+
+        self.y=y
 
 class DynaDrive(effect_chain.Effect):
     def __init__(self):

@@ -76,8 +76,8 @@ class Reverb(effect_chain.Effect):
         n3 = int(n*phi*phi)
         self.hist_buffer[-frames:]=(1-mix)*indata+\
                            (mix*self.hist_buffer[-frames-n:-n]+\
-                           mix*self.hist_buffer[-frames-n2:-n2]/phi+\
-                            mix*self.hist_buffer[-frames-n3:-n3]/phi/phi)/3
+                           mix*self.hist_buffer[-frames-n2:-n2]/phi**.5+\
+                            mix*self.hist_buffer[-frames-n3:-n3]/phi)/3
         outdata[:] = self.hist_buffer[-frames:]
 
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
