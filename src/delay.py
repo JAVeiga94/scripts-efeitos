@@ -83,7 +83,12 @@ class Reverb(effect_chain.Effect):
     def format(self, channels=1, samplerate=48000,buffer_duration=1):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
 
-
+twopi=2*np.pi
+pi = np.pi
+def saw(x):
+    return (x%twopi)/pi-1
+def tri(x):
+    return np.abs((x%twopi)*2/pi-2)-1
         
 class Flange(effect_chain.Effect):
     def __init__(self):
@@ -96,7 +101,7 @@ class Flange(effect_chain.Effect):
         self.hist_buffer=np.zeros((int(samplerate*buffer_duration), channels))
         self.samplerate=samplerate
         self.channels=channels
-        self.parameters=dict(period=0.5, delay=0.010, depth=0.005, mix=0.5)
+        self.parameters=dict(period=0.5, delay=0.010, depth=0.005, mix=0.5, waveform="sine")
         self.t0 = 0
     def apply_effect(self, indata, outdata):
         frames=len(indata)
@@ -112,9 +117,12 @@ class Flange(effect_chain.Effect):
         mix = self.parameters['mix']
         delay=self.parameters['delay']
         t=self.t0
+
+        waveform = {"sine":sin, "saw":saw, "tri":tri}[self.parameters['waveform']]
+        
         for i in range(len(outdata)):
             t+=1/samplerate
-            dt=sin(omega*t)*depth+delay
+            dt=waveform(omega*t)*depth+delay
             outdata[i,0] = indata[i,0]*(1-mix)+mix*self.hist_buffer[-frames+i-int(dt*samplerate),0] 
         self.t0+=frames/samplerate
 
