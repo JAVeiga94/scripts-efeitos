@@ -32,14 +32,14 @@ class Phaser(effect_chain.Effect):
             xprev=self.xprev[j]
             a=(-1-omega*dt)
             b=(1-omega*dt)
-            for i in range(outdata):
+            for i in range(frames):
                 x=outdata[i,0]
                 y=x+a*xprev+b*y
                 outdata[i,0] = y
                 xprev=x
+                #outdata[i,0], xprev=y, x
             self.y[j]=y
             self.xprev[j]=xprev
-            
-            
+                        
         outdata[:]=outdata*mix+indata*(1-mix)
         self.t+=dt*frames
