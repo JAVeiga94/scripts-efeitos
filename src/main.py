@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import global_settings
+import global_settings, scipy.signal
 
 """
 Modified from
