@@ -1,22 +1,23 @@
 append multioctave.OctaveUpDown
+off octave
 edit octave mix_up 0.2
 edit octave mix_down 0.2
-append distortion.SimpleCubic
-off cubic
-edit cubic thresh 0.1
-edit cubic ingain 3
+#append distortion.SimpleCubic
+#off cubic
+#edit cubic thresh 0.1
+#edit cubic ingain 3
 append distortion.Asym
 edit asym thresh1 0.1
 edit asym thresh2 0.3
 edit asym ingain 3
-append distortion.DynaDrive
-off dyna
-edit dyna thresh_a 2.0
-edit dyna thresh_b 0.1
-edit dyna tau 0.005
-edit dyna asym 0.3
-append distortion.LowPass
-edit low_pass omega 30000
+#append distortion.DynaDrive
+#off dyna
+#edit dyna thresh_a 2.0
+#edit dyna thresh_b 0.1
+#edit dyna tau 0.005
+#edit dyna asym 0.3
+append filter.LowPass
+edit low_pass cutoff 5000
 append tremelo.Tremelo
 off tremelo
 edit tremelo period 0.1
@@ -27,6 +28,7 @@ edit flange period 0.5
 edit flange delay 0.01
 edit flange depth 0.002
 edit flange mix 0.5
+append phaser.Phaser
 append delay.Echo
 off echo
 edit echo dt 0.3
