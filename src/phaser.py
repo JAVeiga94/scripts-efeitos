@@ -8,7 +8,7 @@ class Phaser(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="phaser"
-        self.parameters=dict(N=10, f0=100, mix=0.5, fLFO=2., depth=0.5, f1=-1.618)
+        self.parameters=dict(N=10, f0=100, mix=0.5, fLFO=2., depth=0.5, f1=1.2)
         self.t=0
         self.zi=[[0]]*self.parameters['N']
 
@@ -30,6 +30,6 @@ class Phaser(effect_chain.Effect):
             outdata[:,0], self.zi[j] = lfilter(b,a, outdata[:,0], zi=self.zi[j])
         outdata[:] = indata*(1-mix)+outdata*mix
         
-        t+=len(outdata)*dt
+        self.t+=len(outdata)*dt
 
 
