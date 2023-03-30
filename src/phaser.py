@@ -8,7 +8,7 @@ class Phaser(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="phaser"
-        self.parameters=dict(N=10, f0=100, mix=0.5, fLFO=2., depth=0.5, f1=1.2)
+        self.parameters=dict(N=10, f0=100., mix=0.5, fLFO=2., depth=0.5, f1=1.2)
         self.t=0
         self.zi=[[0]]*self.parameters['N']
 

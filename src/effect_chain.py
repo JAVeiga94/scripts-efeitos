@@ -1,7 +1,8 @@
 import readline, os
 import tuner
 import readchar
-import time
+import time, sys
+import numpy as np
 #import getch
 
 if os.name=='nt': os.system('color')
@@ -111,14 +112,14 @@ class EffectChain:
             for effect in self.effects:
                 if effect.name == line[1]:
                     if len(line)==2:
-                        
+                        tabsize=[]
                         selected = 0
                         names = list(effect.parameters.keys())
-                        print("\t".join(names))
+                        print("\t".join([colored(names[i], "green") for i in range(len(names))]).expandtabs(*tabsize))
                         values=list(effect.parameters.values())
 
                         print("\t".join([colored(str(values[i]), "yellow" if i==selected else "green")
-                                         for i in range(len(names))]))
+                                         for i in range(len(names))]).expandtabs(*tabsize))
                         while True:
                             ch = readchar.readchar()
                             if ch=='\x1b':
@@ -126,7 +127,13 @@ class EffectChain:
                                 ch=readchar.readchar()
                                 if ch=='B':
                                     if type(values[selected])==float:
-                                        effect.parameters[names[selected]]*=0.96
+                                        val=effect.parameters[names[selected]]
+                                        val*=0.90
+                                        val=float(str(val)[:5])  #truncate
+                                        effect.set_parameter(names[selected],val)
+                                    elif type(values[selected])==int:
+                                        effect.set_parameter(names[selected],effect.parameters[names[selected]]-1)
+                                        
                                     #print("down")
                                 elif ch=='D':
                                     selected = selected-1 if selected != 0 else len(names)-1
@@ -136,12 +143,18 @@ class EffectChain:
                             	    #print("right")
                                 elif ch=='A':
                                     if type(values[selected])==float:
-                                        effect.parameters[names[selected]]*=1.05
+                                        val=effect.parameters[names[selected]]
+                                        val/=0.90
+                                        val=float(str(val)[:5])  #truncate 
+                                        effect.set_parameter(names[selected],val)
+                                    elif type(values[selected])==int:
+                                        effect.set_parameter(names[selected],effect.parameters[names[selected]]+1)
                             	    #print("up")
                                 print("\033[1A", end='')
+                                sys.stdout.write("\033[K")
                                 values=list(effect.parameters.values())
                                 print("\t".join([colored(str(values[i]), "yellow" if i==selected else "green")
-                                         for i in range(len(names))]))
+                                                 for i in range(len(names))]).expandtabs(*tabsize))
                             elif ch=="x":
                                 print("exiting interactive edit mode")
                                 return
