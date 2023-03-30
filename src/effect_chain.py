@@ -104,12 +104,49 @@ class EffectChain:
             return
         line = line.split()
         if line[0] == "edit":
-            if len(line) != 4:
-                print("syntax:  edit effect param value")
+            if len(line) not in (2,4):
+                print("syntax:  edit effect param value\nor:   edit effect (interactive mode)")
                 return
             found = False
             for effect in self.effects:
                 if effect.name == line[1]:
+                    if len(line)==2:
+                        
+                        selected = 0
+                        names = list(effect.parameters.keys())
+                        print("\t".join(names))
+                        values=list(effect.parameters.values())
+
+                        print("\t".join([colored(str(values[i]), "yellow" if i==selected else "green")
+                                         for i in range(len(names))]))
+                        while True:
+                            ch = readchar.readchar()
+                            if ch=='\x1b':
+                                ch=readchar.readchar()
+                                ch=readchar.readchar()
+                                if ch=='B':
+                                    if type(values[selected])==float:
+                                        effect.parameters[names[selected]]*=0.96
+                                    #print("down")
+                                elif ch=='D':
+                                    selected = selected-1 if selected != 0 else len(names)-1
+                                    #print("left")
+                                elif ch=='C':
+                                    selected = selected+1 if selected != len(names)-1 else 0
+                            	    #print("right")
+                                elif ch=='A':
+                                    if type(values[selected])==float:
+                                        effect.parameters[names[selected]]*=1.05
+                            	    #print("up")
+                                print("\033[1A", end='')
+                                values=list(effect.parameters.values())
+                                print("\t".join([colored(str(values[i]), "yellow" if i==selected else "green")
+                                         for i in range(len(names))]))
+                            elif ch=="x":
+                                print("exiting interactive edit mode")
+                                return
+
+                    
                     if not line[2] in effect.parameters.keys():
                         print(f"effect '{line[1]}' does not have a parameter '{line[2]}'")
                         return
