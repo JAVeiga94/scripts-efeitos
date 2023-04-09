@@ -70,7 +70,7 @@ class Asym(effect_chain.Effect):
     def __init__(self):
         super().__init__()
         self.name="asym"
-        self.parameters=dict(thresh1=0.1, thresh2=0.3, ingain=3)
+        self.parameters=dict(thresh1=0.1, thresh2=0.3, ingain=3.0)
     def apply_effect(self, indata, outdata):
         thresh1 = self.parameters['thresh1']
         thresh2 = self.parameters['thresh2']

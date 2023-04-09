@@ -24,10 +24,11 @@ class Phaser(effect_chain.Effect):
         mix=self.parameters['mix']
         
         for j in range(N):
+            sign= 1 if j%2 else -1
             omega = self.freqs[j]*2*np.pi*\
-                (1+self.parameters['depth']*np.sin(2*np.pi*self.t*self.parameters['fLFO']))
-            if j %2:
-                omega*=-1
+                (1+sign*self.parameters['depth']*np.sin(2*np.pi*self.t*self.parameters['fLFO']))
+            #if j %2:
+            #    omega*=-1
             a=(1,-1+omega*dt)
             b=(1,-1-omega*dt)
             outdata[:,0], self.zi[j] = lfilter(b,a, outdata[:,0], zi=self.zi[j])
